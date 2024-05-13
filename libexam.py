@@ -58,6 +58,7 @@ class libexam:
 
     username = ""
     questions = []
+    password = -1
 
     def setmode(modein):
         mode=modein
@@ -73,6 +74,12 @@ class libexam:
     def setuser(user):
         username=user
         print(f"Username set to: {user}\n")
+        return 0
+
+    def setadmin():
+        passwordf = open("password.txt", "r")
+        password = passwordf.readline()
+        print(f"Read password: {password}\n")
         return 0
 
     def readquestions():
