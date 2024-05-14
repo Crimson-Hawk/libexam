@@ -233,3 +233,88 @@ class libexam:
         datadocs.close()
 
         return 0
+
+    def readanswer(qn):
+        if(username=""){
+            print(f"Username not set!\n")
+            return 1
+        }
+
+
+        
+        md5 = hashlib.md5()
+        md5.update(username)
+        filename = md5.digest()
+        print(f"MD5 hash of {user}: {filename}")
+        
+        sha256 = hashlib.sha256()
+        
+
+        datadocs = open(f"{filename}.txt", "r")
+        n = datadocs.readline()
+        sha256.update(n)
+
+        while(True):#hash check
+            temp = data.readline()
+            if(temp=="chk"):
+                sha256.update(temp)
+
+                rhash = sha256.digest() 
+                ehash = data.readline()
+
+                if(rhash==ehash):
+                    print(f"Hashes match: {rhash}\n")
+                    break
+                else:
+                    print(f"Hashes does not match !\nExpected: {ehash}\nGot: {rhash}\n")
+                    return 1
+            sha256.update(temp)
+
+        datadocs.close()
+        datadocs = open(f"{filename}.txt", "r")
+        contents = datadocs.readlines()
+        line = contents[qn]
+
+        s1hash = line[0:63] #hash of stage 1
+        s1data = line[64:] #data after hash
+        s1h = hashlib.sha256()
+        s1h.update(s1data) #update hash
+
+        print(f"Stage 1 integrity check\n")
+        if(s1hash==s1h.digest()):
+            print(f"Hashes match: {s1hash}\n")
+                break
+        else:
+            print(f"Hashes does not match !\nExpected: {s1h.digest()}\nGot: {s1hash}\n")
+            return 1
+
+        userhash = hashlib.sha256()
+        userhash.update(username)
+        key = userhash.digest()#generated key for decryption
+
+        print(f"Key generated: {key}\n")
+
+        s2 = AESCipher(key).decrypt(s1data) #decrypt
+
+        print(f"Decrypted data: {s2}\n")
+
+        s2hash = s2[0:63] #hash of stage 2
+        s2data = s2[64:] #data after hash
+        s2h = hashlib.sha256()
+        s2h.update(s2data) #update hash
+
+        print(f"Stage 2 integrity check\n")
+        if(s2hash==s2h.digest()):
+            print(f"Hashes match: {s2hash}\n")
+                break
+        else:
+            print(f"Hashes does not match !\nExpected: {s2h.digest()}\nGot: {s2hash}\n")
+            return 1
+
+        timestamp = int(s2data[0:15], 16)
+        print(f"Detected timestamp: {timestamp}")
+
+        print(f"Found answer: {s2data[16:]}")
+        return s2data[16:]
+        
+
