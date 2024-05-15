@@ -7,7 +7,8 @@ import time
 
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS).encode()
-unpad = lambda s: s[:-ord(s[len(s)-1:])]
+unpad = lambda s: s[:-ord(s[len(s) - 1:])]
+
 
 def iv():
     """
@@ -15,6 +16,7 @@ def iv():
     It is ignored for MODE_ECB and MODE_CTR.
     """
     return chr(0) * 16
+
 
 class AESCipher(object):
     """
@@ -42,8 +44,11 @@ class AESCipher(object):
         dec = cipher.decrypt(enc)
         return unpad(dec).decode('utf-8')
 
+
 class question:
-    def __init__(self, qtype, qproblem, qoption1, qoption2, qoption3, qoption4):
+
+    def __init__(self, qtype, qproblem, qoption1, qoption2, qoption3,
+                 qoption4):
         qtype = self.qtype
         qproblem = self.qproblem
         qoption1 = self.qoption1
@@ -61,18 +66,17 @@ class libexam:
     password = -1
 
     def setmode(modein):
-        mode=modein
-        modeset=1
-        print(f"Mode set to: {mode}\n") #1: client 2: admin
+        mode = modein
+        modeset = 1
+        print(f"Mode set to: {mode}\n")  #1: client 2: admin
         return 0
 
     def status():
         return f"""Mode: {mode}
         Username: {username}\n"""
 
-
     def setuser(user):
-        username=user
+        username = user
         print(f"Username set to: {user}\n")
         return 0
 
@@ -83,7 +87,7 @@ class libexam:
         return 0
 
     def readquestions():
-        sha256=hashlib.sha256()
+        sha256 = hashlib.sha256()
 
         questiondocs = open("question.txt", "r")
         n = questiondocs.readline()
@@ -91,20 +95,22 @@ class libexam:
 
         print(f"n={n}\n")
 
-        counter=n
-        while(True):#hash check
+        counter = n
+        while (True):  #hash check
             temp = questiondocs.readline()
-            if(temp=="chk"):
+            if (temp == "chk"):
                 sha256.update(temp)
 
-                rhash = sha256.digest() 
+                rhash = sha256.digest()
                 ehash = questiondocs.readline()
 
-                if(rhash==ehash):
+                if (rhash == ehash):
                     print(f"Hashes match: {rhash}\n")
                     break
                 else:
-                    print(f"Hashes does not match !\nExpected: {ehash}\nGot: {rhash}\n")
+                    print(
+                        f"Hashes does not match !\nExpected: {ehash}\nGot: {rhash}\n"
+                    )
                     return 1
             sha256.update(temp)
 
@@ -112,63 +118,59 @@ class libexam:
         questiondocs = open("question.txt", "r")
         temp = questiondocs.readline()
 
-
-
-        while(True):
+        while (True):
             temp = questiondocs.readline()
-            if(temp=="chk"):
+            if (temp == "chk"):
                 break
             qtype = temp
 
             temp = questiondocs.readline()
             temp = temp.split("|")
 
-            questions.append(question(qtype,temp[0],temp[1],temp[2],temp[3],temp[4]))
-        
-        
-        
-    def writeanswer(qn,ans):
-        if(username==""):
+            questions.append(
+                question(qtype, temp[0], temp[1], temp[2], temp[3], temp[4]))
+
+    def writeanswer(qn, ans):
+        if (username == ""):
             print(f"Username not set!\n")
             return 1
 
-        
         md5 = hashlib.md5()
         md5.update(username)
         filename = md5.digest()
         print(f"MD5 hash of {user}: {filename}")
-        
+
         sha256 = hashlib.sha256()
-        
 
         datadocs = open(f"{filename}.txt", "r")
         n = datadocs.readline()
         sha256.update(n)
 
-        while(True):#hash check
+        while (True):  #hash check
             temp = data.readline()
-            if(temp=="chk"):
+            if (temp == "chk"):
                 sha256.update(temp)
 
-                rhash = sha256.digest() 
+                rhash = sha256.digest()
                 ehash = data.readline()
 
-                if(rhash==ehash):
+                if (rhash == ehash):
                     print(f"Hashes match: {rhash}\n")
                     break
                 else:
-                    print(f"Hashes does not match !\nExpected: {ehash}\nGot: {rhash}\n")
+                    print(
+                        f"Hashes does not match !\nExpected: {ehash}\nGot: {rhash}\n"
+                    )
                     return 1
             sha256.update(temp)
 
-
         datadocs.close()
         datadocs = open(f"{filename}.txt", "r+")
-        
-        timestamp = hex(int(time.time()))#part c of a line according to docs
-        while(len(timestamp) != 16):
+
+        timestamp = hex(int(time.time()))  #part c of a line according to docs
+        while (len(timestamp) != 16):
             timestamp = "0" + timestamp
-        
+
         cd = timestamp + ans
 
         bhash = hashlib.sha256()
@@ -179,11 +181,11 @@ class libexam:
 
         userhash = hashlib.sha256()
         userhash.update(username)
-        key = userhash.digest()#generated key for encryption
+        key = userhash.digest()  #generated key for encryption
 
         print(f"Key generated: {key}\n")
 
-        bcd = AESCipher(key).encrypt(b + cd) #encrypt
+        bcd = AESCipher(key).encrypt(b + cd)  #encrypt
 
         print(f"Parts B C D Encrypted: {bcd}\n")
 
@@ -192,7 +194,7 @@ class libexam:
         a = ahash.digest()
 
         print(f"Parts A Hash: {a}\n")
-        print(f"Data to write: {a + bcd}\n")  
+        print(f"Data to write: {a + bcd}\n")
 
         # read a list of lines into data
         data = datadocs.readlines()
@@ -204,27 +206,25 @@ class libexam:
         datadocs.writelines(data)
         datadocs.close()
 
-
         datadocs = open(f"{filename}.txt", "r+")
         n = datadocs.readline()
         sha256.update(n)
 
-        while(True):#calculate hash
+        while (True):  #calculate hash
             temp = data.readline()
-            if(temp=="chk"):
+            if (temp == "chk"):
                 sha256.update(temp)
                 targethash = data.readline()
                 break
             sha256.update(temp)
-        
+
         print(f"New hash generated: {targethash}\n")
-        
 
         # read a list of lines into data
         data = datadocs.readlines()
 
         # now change the answer line, note that you have to add a newline
-        data[1+n] = targethash
+        data[1 + n] = targethash
 
         # and write everything back
         datadocs.writelines(data)
@@ -233,36 +233,36 @@ class libexam:
         return 0
 
     def readanswer(qn):
-        if(username==""):
+        if (username == ""):
             print(f"Username not set!\n")
             return 1
-
 
         md5 = hashlib.md5()
         md5.update(username)
         filename = md5.digest()
         print(f"MD5 hash of {user}: {filename}")
-        
+
         sha256 = hashlib.sha256()
-        
 
         datadocs = open(f"{filename}.txt", "r")
         n = datadocs.readline()
         sha256.update(n)
 
-        while(True):#hash check
+        while (True):  #hash check
             temp = data.readline()
-            if(temp=="chk"):
+            if (temp == "chk"):
                 sha256.update(temp)
 
-                rhash = sha256.digest() 
+                rhash = sha256.digest()
                 ehash = data.readline()
 
-                if(rhash==ehash):
+                if (rhash == ehash):
                     print(f"Hashes match: {rhash}\n")
                     break
                 else:
-                    print(f"Hashes does not match !\nExpected: {ehash}\nGot: {rhash}\n")
+                    print(
+                        f"Hashes does not match !\nExpected: {ehash}\nGot: {rhash}\n"
+                    )
                     return 1
             sha256.update(temp)
 
@@ -271,38 +271,42 @@ class libexam:
         contents = datadocs.readlines()
         line = contents[qn]
 
-        s1hash = line[0:63] #hash of stage 1
-        s1data = line[64:] #data after hash
+        s1hash = line[0:63]  #hash of stage 1
+        s1data = line[64:]  #data after hash
         s1h = hashlib.sha256()
-        s1h.update(s1data) #update hash
+        s1h.update(s1data)  #update hash
 
         print(f"Stage 1 integrity check\n")
-        if(s1hash==s1h.digest()):
+        if (s1hash == s1h.digest()):
             print(f"Hashes match: {s1hash}\n")
         else:
-            print(f"Hashes does not match !\nExpected: {s1h.digest()}\nGot: {s1hash}\n")
+            print(
+                f"Hashes does not match !\nExpected: {s1h.digest()}\nGot: {s1hash}\n"
+            )
             return 1
 
         userhash = hashlib.sha256()
         userhash.update(username)
-        key = userhash.digest()#generated key for decryption
+        key = userhash.digest()  #generated key for decryption
 
         print(f"Key generated: {key}\n")
 
-        s2 = AESCipher(key).decrypt(s1data) #decrypt
+        s2 = AESCipher(key).decrypt(s1data)  #decrypt
 
         print(f"Decrypted data: {s2}\n")
 
-        s2hash = s2[0:63] #hash of stage 2
-        s2data = s2[64:] #data after hash
+        s2hash = s2[0:63]  #hash of stage 2
+        s2data = s2[64:]  #data after hash
         s2h = hashlib.sha256()
-        s2h.update(s2data) #update hash
+        s2h.update(s2data)  #update hash
 
         print(f"Stage 2 integrity check\n")
-        if(s2hash==s2h.digest()):
+        if (s2hash == s2h.digest()):
             print(f"Hashes match: {s2hash}\n")
         else:
-            print(f"Hashes does not match !\nExpected: {s2h.digest()}\nGot: {s2hash}\n")
+            print(
+                f"Hashes does not match !\nExpected: {s2h.digest()}\nGot: {s2hash}\n"
+            )
             return 1
 
         timestamp = int(s2data[0:15], 16)
@@ -310,5 +314,3 @@ class libexam:
 
         print(f"Found answer: {s2data[16:]}")
         return s2data[16:]
-        
-
