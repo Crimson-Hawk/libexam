@@ -127,12 +127,10 @@ class libexam:
         
         
         
-    def writeanswer(qn,ans)
-        if(username=""){
+    def writeanswer(qn,ans):
+        if(username==""):
             print(f"Username not set!\n")
             return 1
-        }
-
 
         
         md5 = hashlib.md5()
@@ -235,13 +233,11 @@ class libexam:
         return 0
 
     def readanswer(qn):
-        if(username=""){
+        if(username==""):
             print(f"Username not set!\n")
             return 1
-        }
 
 
-        
         md5 = hashlib.md5()
         md5.update(username)
         filename = md5.digest()
@@ -283,7 +279,6 @@ class libexam:
         print(f"Stage 1 integrity check\n")
         if(s1hash==s1h.digest()):
             print(f"Hashes match: {s1hash}\n")
-                break
         else:
             print(f"Hashes does not match !\nExpected: {s1h.digest()}\nGot: {s1hash}\n")
             return 1
@@ -306,7 +301,6 @@ class libexam:
         print(f"Stage 2 integrity check\n")
         if(s2hash==s2h.digest()):
             print(f"Hashes match: {s2hash}\n")
-                break
         else:
             print(f"Hashes does not match !\nExpected: {s2h.digest()}\nGot: {s2hash}\n")
             return 1
