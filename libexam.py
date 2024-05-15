@@ -58,16 +58,18 @@ class question:
 
 
 class libexam:
-    mode = 0
-    mode_set = 0
 
-    username = ""
-    questions = []
-    password = -1
+    def __init__(self, mode, mode_set, username, questions, password):
+
+        self.mode = mode = 0
+        self.mode_set = mode_set = 0
+        self.username = username = ""
+        self.questions = questions = []
+        self.password = password = -1
 
     def setmode(modein):
-        mode = modein
-        modeset = 1
+        self.mode = modein
+        self.modeset = 1
         print(f"Mode set to: {mode}\n")  #1: client 2: admin
         return 0
 
@@ -76,13 +78,40 @@ class libexam:
         Username: {username}\n"""
 
     def setuser(user):
-        username = user
+        self.username = user
         print(f"Username set to: {user}\n")
         return 0
 
     def setadmin():
         passwordf = open("password.txt", "r")
-        password = passwordf.readline()
+        while (True):  #hash check
+            temp = passwordf.readline()
+            if (temp == "chk"):
+                sha256.update(temp)
+
+                rhash = sha256.digest()
+                ehash = passwordf.readline()
+
+                if (rhash == ehash):
+                    print(f"Hashes match: {rhash}\n")
+                    break
+                else:
+                    print(
+                        f"Hashes does not match !\nExpected: {ehash}\nGot: {rhash}\n"
+                    )
+                    return 1
+            sha256.update(temp)
+
+        passwordf.close()
+
+        passwordf = open("password.txt", "r")
+        self.password = passwordf.readline()
+        if (rhash == ehash):
+            print(f"Hashes match: {rhash}\n")
+            break
+        else:
+            print(
+                f"Hashes does not match !\nExpected: {ehash}\nGot: {rhash}\n")
         print(f"Read password: {password}\n")
         return 0
 
@@ -127,16 +156,16 @@ class libexam:
             temp = questiondocs.readline()
             temp = temp.split("|")
 
-            questions.append(
+            self.questions.append(
                 question(qtype, temp[0], temp[1], temp[2], temp[3], temp[4]))
 
     def writeanswer(qn, ans):
-        if (username == ""):
+        if (self.username == ""):
             print(f"Username not set!\n")
             return 1
 
         md5 = hashlib.md5()
-        md5.update(username)
+        md5.update(self.username)
         filename = md5.digest()
         print(f"MD5 hash of {user}: {filename}")
 
@@ -180,7 +209,7 @@ class libexam:
         print(f"Timestamp: {timestamp}\nAnswer: {ans}\nPart B Hash: {b}")
 
         userhash = hashlib.sha256()
-        userhash.update(username)
+        userhash.update(self.username)
         key = userhash.digest()  #generated key for encryption
 
         print(f"Key generated: {key}\n")
@@ -233,12 +262,12 @@ class libexam:
         return 0
 
     def readanswer(qn):
-        if (username == ""):
+        if (self.username == ""):
             print(f"Username not set!\n")
             return 1
 
         md5 = hashlib.md5()
-        md5.update(username)
+        md5.update(self.username)
         filename = md5.digest()
         print(f"MD5 hash of {user}: {filename}")
 
@@ -286,7 +315,7 @@ class libexam:
             return 1
 
         userhash = hashlib.sha256()
-        userhash.update(username)
+        userhash.update(self.username)
         key = userhash.digest()  #generated key for decryption
 
         print(f"Key generated: {key}\n")
