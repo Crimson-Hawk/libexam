@@ -108,7 +108,6 @@ class libexam:
         self.password = passwordf.readline()
         if (rhash == ehash):
             print(f"Hashes match: {rhash}\n")
-            break
         else:
             print(
                 f"Hashes does not match !\nExpected: {ehash}\nGot: {rhash}\n")
