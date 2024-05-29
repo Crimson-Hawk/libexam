@@ -1,3 +1,5 @@
+#SPDX-FileCopyrightText: 2024 Crimson Hawk
+#SPDX-License-Identifier: GPL-3.0-or-later
 import base64
 import hashlib
 from Crypto import Random

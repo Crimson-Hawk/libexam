@@ -1,11 +1,15 @@
+#SPDX-FileCopyrightText: 2024 Crimson Hawk
+#SPDX-License-Identifier: GPL-3.0-or-later
 import base64
 import hashlib
 import string
 import time
 #from libexam.py import *
 
+
 def __init__():
     print("test")
+
 
 print("""
          ___  ___  __
@@ -17,6 +21,5 @@ print("""
 
             Coded by Crimson Hawk
     """)
-
 
 print(f"libexam frontend UI initiated")
