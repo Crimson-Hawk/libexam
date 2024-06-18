@@ -4,11 +4,16 @@ import base64
 import hashlib
 import string
 import time
-#from libexam.py import *
+import keyboard
+import os
+from libexam.py import *
 
 
-def __init__():
-    print("test")
+def clearConsole():
+    command = 'clear'
+    if os.name in ('nt', 'dos'):  # If computer is running windows use cls
+        command = 'cls'
+    os.system(command)
 
 
 print("""
@@ -21,3 +26,35 @@ print("""
     """)
 
 print(f"libexam frontend UI initiated")
+
+sleep(1)
+print("\r")
+
+libexam.setmode(1)  #setmode as client
+
+username = ""
+
+print(f"""
+ ______________________________
+|                              |
+|   libexam demo frontend ui   |
+|                              |
+|  Username:{username}
+|                              |
+|           (L)ogin            |
+|______________________________|""")
+
+while (True):
+    key = keyboard.wait()
+    #print(f"{key} pressed")
+    username = username + key
+    clearConsole()
+    print(f"""
+ ______________________________
+|                              |
+|   libexam demo frontend ui   |
+|                              |
+|  Username:{username}
+|                              |
+|           (L)ogin            |
+|______________________________|""")
